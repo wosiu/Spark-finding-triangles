@@ -1,0 +1,32 @@
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkContext._
+import org.apache.spark.SparkConf
+
+object CountTriangles {
+  def main(args: Array[String]) {
+    /*
+    val input = "sample.in" 
+    val conf = new SparkConf().setAppName("Count Triangles Spark")
+    val sc = new SparkContext(conf)
+    val data = sc.textFile(input, 2).cache()
+    val numAs = data.filter(line => line.contains("3")).count()
+    val numBs = data.filter(line => line.contains("6")).count()
+    println("Lines with a: %s, Lines with b: %s".format(numAs, numBs))
+    */
+    // Load the edges in canonical order and partition the graph for triangle count
+   val graph = GraphLoader.edgeListFile(sc, "graphx/data/followers.txt", true).partitionBy(PartitionStrategy.RandomVertexCut)
+// Find the triangle count for each vertex
+val triCounts = graph.triangleCount().vertices
+// Join the triangle counts with the usernames
+val users = sc.textFile("graphx/data/users.txt").map { line =>
+  val fields = line.split(",")
+  (fields(0).toLong, fields(1))
+}
+val triCountByUsername = users.join(triCounts).map { case (id, (username, tc)) =>
+  (username, tc)
+}
+// Print the result
+println(triCountByUsername.collect().mkString("\n"))
+
+  }
+}

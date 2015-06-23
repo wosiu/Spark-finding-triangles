@@ -1,0 +1,2 @@
+1. na wejsciu krawedzie w osobnych liniach, gdzie srcId < dstId
+2. odpalenie run.sh na sample.in (nalezy ustawic sciezke do sparka, u mnie /opt/spark-1.3.1-bin-hadoop2.6
